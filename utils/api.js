@@ -1,10 +1,9 @@
 import axios from "axios"
 
-const API_URL = "https://";
-const API_URL_SAFE = "https://urlscan.io/api/v1/scan/";
+const API_URL = "https://ddss-demo.glitch.me/"
 const temp = "https://jsonplaceholder.typicode.com/todos"
 
-export async function callApi() {
-    const res = await axios.post(temp);
+export async function callApi(query) {
+    const res = await axios.get(API_URL+"api", { params: { query } });
     return res.data;
 }

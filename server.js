@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require('cors')
 
 const Sequelize = require("sequelize");
 const path = require("path");
@@ -9,8 +10,15 @@ const bcrypt = require("bcrypt");
 const axios = require("axios");
 const rateLimit = require("express-rate-limit");
 const slowDown = require("express-slow-down");
-
 const app = express();
+
+
+const corsOptions = {
+  origin: 'https://snack.expo.io',
+}
+
+app.use(cors(corsOptions))
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -199,30 +207,12 @@ app.get("/api", limiter, speedLimiter, async (req, res, next) => {
     return res.json(cachedData);
   }*/
   try {
-    const API_SUBMISSION_URL = "https://urlscan.io/api/v1/scan/";
-    const res = await axios({
-      method: "post",
-      url: API_SUBMISSION_URL,
-      data: {
-        url: "https://jose-donato.me",
-        visibility: "public"
-      },
-      headers: {
-        "Content-Type": "application/json",
-        "API-Key": process.env.API_KEY
-      }
-    });
-    
-    const res2 = await axios({
-      method: "get",
-      url: res.api,
-      headers: {
-        "Content-Type": "application/json",
-      }
-    });
-    
-    
-    return res.json(res2);
+    if(!req.query.query) {
+      return res.status(400).json({message: 'Provide query'})
+    }
+    const API_SUBMISSION_URL = `https://api.shodan.io/shodan/host/search?key=${process.env.SHODAN_API_KEY}&query=${req.query.query}`;
+    const resApi = await axios.get(API_SUBMISSION_URL);
+    return res.json(resApi.data);
   } catch (error) {
     console.log(error);
     return res.status(403).json({

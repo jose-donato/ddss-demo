@@ -28,6 +28,8 @@ expo: tries to take it to the next level introducing another level of abstractio
 
 - Of course we need in some usecases to save data data. Imagine an offline game, we need to save the player progress somewhere in the user's devices. When saving data persistently, we allow our application to grab the data layer without the need of network requests. In React Native we have a community-maintained package that is widely used (2k github stars and 276,852 weekly downloads in npm) for this purpose. Despite being in its own sandbox environment (meaning it is not shared between apps), it is not meant to use to save authentication tokens or other secrets. For web developers, Async Storage can be easily compared to Local Storage. Why is not secure? Just looking at the docs "AsyncStorage is a simple, unencrypted, asynchronous, persistent, key-value storage system that is global to the app.". Expo offers an alternative that although it is not available on the web, it is available for both iOS and Android devices - **SecureStore** (https://docs.expo.io/versions/latest/sdk/securestore/).
 
+- data storage on the server with authorization (properly protected against SQLi).
+
 2. network security
 all API calls must use SSL encryption meaning that all the data in transit will be encrypted from the point it leaves the server to the point it reaches the client. The easy way to make sure the endpoint is secure is to watch at the protocol in the beggining:
 
@@ -35,5 +37,43 @@ all API calls must use SSL encryption meaning that all the data in transit will 
 
 If it starts with `https://` it means we should be fine. If it starts with `http://` it does not support and we should not call that endpoint.
 
+3. authentication
+jwt is pretty much becoming a standard in authentication both in web and mobile applications.
+
+![jwt](https://foreverframe.net/wp-content/uploads/2017/04/jwt-diagram.png)
+biggest problem with jwt?
+- where to save it? both in web and mobile.
+most web devs with no security background think it is safe to save the token in Local Storage the same way mobile devs think exactly the same about Async Storage. However, in both situations, as we seen, the data is not encrypted and the client has always full access to it resulting in an unusable approach. Attackers can easily exploit it, gain access to the token and, consequently, (of course depending on how the application is structured) gain access to the victim's account. 
+
+Solutions: 
+a) expo-secure-store (https://docs.expo.io/versions/latest/sdk/securestore/): package made by expo that provides a secure (encrypted) way to store key-value pairs with a localStorage-like syntax for both iOS and Android. For iOS it uses keychain services and for Android it uses SharedPreferences encrypted with Adnroid's Keystore system. as expected this does not work on web.
+![expo-secure-store compatibility](https://i.imgur.com/GsJpbRU.png)
+
+b) for some situations we can never save the token but as soon as the user closes the application the token becomes inexistent and session is forgotten. 
+
+Since I am using expo for the demo, from a single codebase, I will get output for both mobile (iOS and Android) and web. Considering expo-secure-store does not work on web, depending on which Platform the codebase is running (with `Platform.OS !== "web"`, for example) we will use expo-secure-store or the second solution, i.e., never save the token.
+
+
+Also regarding Authentication, we can increase security by implementing multifactor authentication with SMS confirmation, biometric (fingerprint or retina) authentication or Google Authenticator.
+
+
+4. Deep linking
+This is only related to mobile and does not exist in the web.
+Quoting react native docs:
+*"Deep linking is a way of sending data directly to a native application from an outside source."*
+Some examples of deep linking:
+- `https://google.com`
+- `<some_app>://products/1` - open product 1 in *some_app*
+- `tel:+311234567899`
+- `<malicious_app>://token/<token>` - if the user has a *malicious_app* installed, we cand send information (for example some security token) to it with similar deep link. in this [url](https://blog.trendmicro.com/trendlabs-security-intelligence/ios-url-scheme-susceptible-to-hijacking/), this attack is deeply explored
+
+
+
+5. SQLi
+SQL injections, the most typical attacks on the web also exist on mobile. Since, normally, we talk to a backend service depending on the user input (login, search, etc) this backend service can be vulnerable to injections and, consequently, the mobile app. Assuming the backend has a SQL database, it can be vulnerable to SQL injection. Possible solutions to protect against this type of injections:
+- Use ORMs (such as prisma for NodeJS or django for python) that protect against injections by default
+- Sanitize the users' input
+- Both - better safe than sorry
 
 ### **demo**
+

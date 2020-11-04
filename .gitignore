@@ -11,3 +11,7 @@ web-build/
 
 # macOS
 .DS_Store
+
+ddss-demo-final/node_modules
+ddss-demo-unsafe/node_modules
+appium-tests/node_modules

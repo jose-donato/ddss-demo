@@ -16,6 +16,7 @@ export default function Home({ navigation, jwt }) {
     <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-start" }}>
       <Card containerStyle={{width: "90%"}}>
         <Input
+          accessibilityLabel="home_shodanQueryInput"
           label={'Shodan query'}
           placeholder="Shodan query..."
           value={query}

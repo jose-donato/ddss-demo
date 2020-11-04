@@ -23,7 +23,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.josedonato.snacka2aa6930f5634f60a6477fb5afd7df1a"
     },
     "web": {
       "favicon": "./assets/favicon.png"

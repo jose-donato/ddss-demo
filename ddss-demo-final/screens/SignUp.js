@@ -42,12 +42,14 @@ const SignUp = ({ navigation }) => {
         <View style={{ paddingVertical: 20 }}>
             <Card>
                 <Input
+                    accessibilityLabel="signup_usernameInput"
                     label={'Username'}
                     placeholder="Username"
                     value={username}
                     onChangeText={setUsername}
                 />
                 <Input
+                    accessibilityLabel="signup_passwordInput"
                     label={'Password'}
                     placeholder="Password"
                     value={password}
@@ -55,6 +57,7 @@ const SignUp = ({ navigation }) => {
                     secureTextEntry
                 />
                 <Input
+                    accessibilityLabel="signup_confirmPasswordInput"
                     label={'Password Confirm'}
                     placeholder="Enter password again"
                     value={passwordConfirm}
@@ -67,6 +70,7 @@ const SignUp = ({ navigation }) => {
                 </Text>
 
                 <Button
+                    accessibilityLabel="signup_submitButton"
                     buttonStyle={{ margin: 10, marginTop: 50 }}
                     backgroundColor="#03A9F4"
                     title="SIGN UP"

@@ -35,12 +35,14 @@ const SignIn = ({ navigation, login }) => {
         <View>
             <Card>
                 <Input
+                    accessibilityLabel="signin_usernameInput"
                     label={'Username'}
                     placeholder="Username"
                     value={username}
                     onChangeText={setUsername}
                 />
                 <Input
+                    accessibilityLabel="signin_passwordInput"
                     placeholder="Password"
                     value={password}
                     onChangeText={setPassword}
@@ -51,6 +53,7 @@ const SignIn = ({ navigation, login }) => {
                     {signInError && signInError}
                 </Text>
                 <Button
+                    accessibilityLabel="signin_submitButton"
                     buttonStyle={{ margin: 10, marginTop: 50 }}
                     title="Sign in"
                     onPress={() => handleSignIn()}

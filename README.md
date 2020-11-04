@@ -1,5 +1,5 @@
 # ddss_demo
-Slides: https://slides.com/josedonato/ddss_demo/edit
+Slides: https://slides.com/josedonato/ddss_demo
 
 Live URLs:
 1. **backend**: https://glitch.com/~ddss-demo

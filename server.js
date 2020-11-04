@@ -1,24 +1,24 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cors = require('cors')
+const cors = require("cors");
 
 const Sequelize = require("sequelize");
 const path = require("path");
 
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const axios = require("axios");
 const rateLimit = require("express-rate-limit");
 const slowDown = require("express-slow-down");
+
 const app = express();
 
-
 const corsOptions = {
-  origin: 'https://snack.expo.io',
-}
+  origin: ["https://snack.expo.io", "http://localhost:19006"]
+};
 
-app.use(cors(corsOptions))
-
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -92,60 +92,39 @@ sequelize.sync({ force: true }).then(() => {
     ]).then(function() {
       return UserModel.findAll();
     }).then(function(users) {
-      //console.log("Default users added");
-      //console.log(users);
+      console.log("Default users added");
     });*/
 });
 
-const AuthController = {};
+/*https://github.com/mikkoyli/sequelize-login-rest/blob/master/controllers/authController.js*/
 
-// Register a user.
-AuthController.signUp = async (req, res) => {
-  if (!req.body.username || !req.body.password) {
-    res.json({
-      message: "Please provide a username, email and a password."
-    });
-  } else {
-    const seq = await sequelize.sync();
-    const newUser = {
-      username: req.body.username,
-      password: req.body.password
+async function isTokenValid(req) {
+  if (req.headers && req.headers["authorization"]) {
+    const token = req.headers['authorization'].split(" ")[1]; //Authorization: "Bearer token"
+    const decodedToken = jwt.verify(token, process.env.JWT_KEY);
+    const potentialUser = {
+      where: {
+        username: decodedToken.username
+      }
     };
-    try {
-      const user = await UserModel.create(newUser);
-      res.status(201).json({
-        message: "Account created!"
-      });
-    } catch (error) {
-      res.status(403).json({
-        message: "Error occurred"
-      });
+    const user = await UserModel.findOne(potentialUser)
+    if(user) {
+      return true;
     }
   }
-};
+  return false;
+}
 
-/*https://github.com/mikkoyli/sequelize-login-rest/blob/master/controllers/authController.js*/
-AuthController.getUserByJwt = (req, res) => {
-  if (req.headers && req.headers.authorization) {
-    /*const token = req.headers['authorization'].replace(/^JWT\s/, '');
-    let decoded;
-    decoded = jwt.verify(token, config.keys.secret);
+app.get("/users", async (req, res) => {
+  //same as function(req, res) {}
+  const users = await UserModel.findAll();
+  res.json(users);
+});
 
-    console.log(decoded.username);
-    // Fetch the user by id 
-    User.findOne({_username: decoded.username}).then(function(user){
-        // Do something with the user
-        res.status(200).json({
-          user
-        });
-    });*/
-  }
-};
-
-// Authenticate a user.
-AuthController.authenticateUser = async (req, res) => {
+app.post("/login", async (req, res) => {
   if (!req.body.username || !req.body.password) {
     res.status(404).json({
+      success: false,
       message: "username and password are needed!"
     });
   } else {
@@ -159,12 +138,14 @@ AuthController.authenticateUser = async (req, res) => {
     const user = await UserModel.findOne(potentialUser);
     if (!user) {
       res.status(404).json({
+        success: false,
         message: "Authentication failed!"
       });
     } else {
       const isMatch = await user.validPassword(password);
       if (isMatch) {
-        res.json({ success: true });
+        const token = jwt.sign({ username: user.username }, process.env.JWT_KEY);
+        res.json({ success: true, token });
       } else {
         res.status(404).json({
           message: "Login failed!"
@@ -172,15 +153,34 @@ AuthController.authenticateUser = async (req, res) => {
       }
     }
   }
-};
-
-app.get("/users", async (req, res) => {
-  //same as function(req, res) {}
-  const users = await UserModel.findAll();
-  res.json(users);
 });
-app.post("/login", AuthController.authenticateUser);
-app.post("/signup", AuthController.signUp);
+
+app.post("/register", async (req, res) => {
+  if (!req.body.username || !req.body.password) {
+    res.status(403).json({
+      success: false,
+      message: "Please provide a username and a password."
+    });
+  } else {
+    const seq = await sequelize.sync();
+    const newUser = {
+      username: req.body.username,
+      password: req.body.password
+    };
+    try {
+      const user = await UserModel.create(newUser);
+      res.status(201).json({
+        success: true,
+        message: "Account created!"
+      });
+    } catch (error) {
+      res.status(403).json({
+        success: false,
+        message: "Error occurred"
+      });
+    }
+  }
+});
 
 /* RATE LIMITING API */
 
@@ -199,23 +199,36 @@ const speedLimiter = slowDown({
   // etc.
 });
 
-const BASE_URL = "";
 
 app.get("/api", limiter, speedLimiter, async (req, res, next) => {
+  const isValid = await isTokenValid(req);
+  if(!isValid) { //check if user is logged in, only logged in users can make API requests
+    return res.status(403).json({
+      success: false,
+      message: "Error occurred"
+    });
+  }
   // in memory cache
   /*if (cacheTime && cacheTime > Date.now() - 30 * 1000) {
     return res.json(cachedData);
   }*/
   try {
-    if(!req.query.query) {
-      return res.status(400).json({message: 'Provide query'})
+    if (!req.query.query) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Provide query" 
+      });
     }
     const API_SUBMISSION_URL = `https://api.shodan.io/shodan/host/search?key=${process.env.SHODAN_API_KEY}&query=${req.query.query}`;
     const resApi = await axios.get(API_SUBMISSION_URL);
-    return res.json(resApi.data);
+    return res.json({
+      success: true,
+      results: resApi.data.matches.splice(0, 10) //only want 10 results for this purpose
+    });
   } catch (error) {
     console.log(error);
     return res.status(403).json({
+      success: false,
       message: "Error occurred"
     });
   }

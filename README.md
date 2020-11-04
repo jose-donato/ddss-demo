@@ -1,7 +1,10 @@
 # ddss_demo
+Slides: https://slides.com/josedonato/ddss_demo/edit
 
+Live URLs:
 1. **backend**: https://glitch.com/~ddss-demo
-2. **mobile app**: https://snack.expo.io/@jose-donato/e7e8ab
+2. **mobile app unsafe**: https://snack.expo.io/@jose-donato/ddss-demo-unsafe
+3. **mobile app with authentication**: https://snack.expo.io/@jose-donato/ddss-demo-final
  
 ### **motivation**
 "security is often overlooked"
@@ -74,6 +77,4 @@ SQL injections, the most typical attacks on the web also exist on mobile. Since,
 - Use ORMs (such as prisma for NodeJS or django for python) that protect against injections by default
 - Sanitize the users' input
 - Both - better safe than sorry
-
-### **demo**
 

@@ -1,40 +1,42 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import {
     Input,
     Card,
-    FormValidationMessage,
     Button
 } from 'react-native-elements';
+import { register as apiRegister } from "../utils/api"
 
 
 const SignUp = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [SignUpErrors, setSignUpErrors] = useState({});
+    const [signUpError, setSignUpError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleSignUp = () => {
-
-        const data = {
-            username: username,
-            password: password,
-            password_confirmation: passwordConfirm
-        };
-
-        const messages = {
-            required: field => `${field} is required`,
-            'username.alpha': 'Username contains unallowed characters',
-            'username.username': 'Please enter a valid username address',
-            'password.min':
-                'Password is too short. Must be greater than 6 characters',
-            'password.confirmed': 'Passwords do not match'
-        };
-
-        signUp({ username, password });
+    const handleSignUp = async () => {
+        setSignUpError("")
+        if(password !== passwordConfirm) {
+            setSignUpError("Password and password confirm are different")
+            return;
+        }
+        try {
+            setLoading(true)
+            const data = await apiRegister(username, password)
+            setLoading(false)
+            if (data.success) {
+                navigation.navigate("SignIn")
+            } else {
+                setSignUpError("Error happened.")
+            }
+        } catch (err) {
+            setLoading(false)
+            setSignUpError("Error happened.")
+        }
     };
 
-    useEffect(() => {}, [SignUpErrors]);
+    //useEffect(() => { }, [SignUpErrors]);
 
     return (
         <View style={{ paddingVertical: 20 }}>
@@ -44,8 +46,6 @@ const SignUp = ({ navigation }) => {
                     placeholder="Username"
                     value={username}
                     onChangeText={setUsername}
-                    errorStyle={{ color: 'red' }}
-                    errorMessage={SignUpErrors ? SignUpErrors.username : null}
                 />
                 <Input
                     label={'Password'}
@@ -61,8 +61,9 @@ const SignUp = ({ navigation }) => {
                     onChangeText={setPasswordConfirm}
                     secureTextEntry
                 />
+                {loading && <ActivityIndicator size="large" />}
                 <Text style={{ color: 'red', marginLeft: 10, fontSize: 10 }}>
-                    {SignUpErrors ? SignUpErrors.password : null}
+                    {signUpError && signUpError}
                 </Text>
 
                 <Button
@@ -77,6 +78,6 @@ const SignUp = ({ navigation }) => {
             </Card>
         </View>
     );
-};
+}
 
 export default SignUp;

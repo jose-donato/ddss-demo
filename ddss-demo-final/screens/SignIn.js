@@ -1,35 +1,34 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import {
     Input,
     Card,
-    FormValidationMessage,
     Button
 } from 'react-native-elements';
-
+import {login as apiLogin} from "../utils/api"
 
 const SignIn = ({ navigation, login }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [SignUpErrors, setSignUpErrors] = useState({});
+    const [signInError, setSignInError] = useState('');
+    const [loading, setLoading] = useState(false);
 
 
-    const handleSignIn = () => {
-
-        const data = {
-            username: username,
-            password: password
-        };
-
-        const messages = {
-            required: field => `${field} is required`,
-            'username.alpha': 'Username contains unallowed characters',
-            'username.username': 'Please enter a valid username address',
-            'password.min': 'Wrong Password?'
-        };
-        //navigation.navigate("Home")
-        login(username)
-        //signIn({ username, password });
+    const handleSignIn = async () => {
+        setSignInError("")
+        try {
+            setLoading(true)
+            const data = await apiLogin(username, password)
+            setLoading(false)
+            if(data.success) {
+                login(data.token) //call function that comes from App (to set token to secure-store or jwt local variable)
+            } else {
+                setSignInError("Wrong credentials")
+            }
+        } catch(err) {
+            setSignInError("Wrong credentials")
+            setLoading(false)
+        }
     };
 
     return (
@@ -40,17 +39,17 @@ const SignIn = ({ navigation, login }) => {
                     placeholder="Username"
                     value={username}
                     onChangeText={setUsername}
-                    errorStyle={{ color: 'red' }}
-                    errorMessage={SignUpErrors ? SignUpErrors.username : null}
                 />
                 <Input
                     placeholder="Password"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
-                    errorStyle={{ color: 'red' }}
-                    errorMessage={SignUpErrors ? SignUpErrors.password : null}
                 />
+                {loading && <ActivityIndicator size="large" />}
+                <Text style={{ color: 'red', marginLeft: 10, fontSize: 10 }}>
+                    {signInError && signInError}
+                </Text>
                 <Button
                     buttonStyle={{ margin: 10, marginTop: 50 }}
                     title="Sign in"

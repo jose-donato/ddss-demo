@@ -3,11 +3,11 @@ import {View, Text, StyleSheet} from 'react-native';
 
 export default function Splash() {
   return (
-    <View style={styles}>
-      <Text>Loading...</Text>
+    <View style={styles.center}>
+      <Text style={styles.title}>Loading...</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   center: {
@@ -20,4 +20,3 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 });
-

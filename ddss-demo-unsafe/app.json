@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ddss_demo",
-    "slug": "ddss_demo",
+    "name": "ddss-demo-unsafe",
+    "slug": "snack-a2aa6930-f563-4f60-a647-7fb5afd7df1a",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,11 +19,14 @@
     "ios": {
       "supportsTablet": true
     },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "android": {
-      "package": "io.xom.com"
     }
   }
 }

@@ -4,7 +4,8 @@ Slides: https://slides.com/josedonato/ddss_demo
 Live URLs:
 1. **backend**: https://glitch.com/~ddss-demo
 2. **mobile app unsafe**: https://snack.expo.io/@jose-donato/ddss-demo-unsafe
-3. **mobile app with authentication**: https://snack.expo.io/@jose-donato/ddss-demo-final
+3. **changes done during the presentation**: https://snack.expo.io/@jose-donato/ddss-demo-unsafe-starter
+4. **final mobile app with authentication (with react navigation library and accessibility labels for the tests)**: https://snack.expo.io/@jose-donato/ddss-demo-final
  
 ### **motivation**
 "security is often overlooked"

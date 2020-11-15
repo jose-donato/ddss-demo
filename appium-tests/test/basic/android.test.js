@@ -29,5 +29,13 @@ describe('Testing ddss-demo', function () {
         await homepage_shodanQueryInput.waitForDisplayed(3000)
         const home_shodanQueryInputText = await homepage_shodanQueryInput.getText();
         assert.equal(home_shodanQueryInputText, "Shodan query...");
-    })
+    });
+    
+    /*it('should create and destroy a session', async function () {
+        const res = await client.status();
+        assert.isObject(res.build);
+
+        const delete_session = await client.deleteSession();
+        assert.isNull(delete_session);
+    });*/
 });
